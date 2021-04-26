@@ -27,7 +27,7 @@ if __name__ == "__main__":
     df: pd.DataFrame = pd.read_pickle("minibench/mini-bench-arch-cell-accs.pd")
 
     with open(args.stylesheet, "r") as file:
-        stylesheet: object = yaml.safe_load(file)
+        stylesheet: dict = yaml.safe_load(file)
 
     graph: NASBenchDigraph = NASBench201Digraph(df, stylesheet)
 

@@ -21,12 +21,12 @@ class NASBench201Digraph(NASBenchDigraph):
         "none": "None",
     }
 
-    def __init__(self, df: pd.DataFrame, stylesheet: Optional[object] = None) -> None:
+    def __init__(self, df: pd.DataFrame, stylesheet: Optional[dict] = None) -> None:
 
         self.dot_graph: graphviz.Digraph = graphviz.Digraph(
             format="pdf",
-            edge_attr=stylesheet["edge_attr"],
-            node_attr=stylesheet["node_attr"],
+            edge_attr=stylesheet["edge_attr"] if stylesheet is not None else {},
+            node_attr=stylesheet["node_attr"] if stylesheet is not None else {},
             engine="dot",
         )
 
@@ -81,7 +81,7 @@ class NASBench201Digraph(NASBenchDigraph):
                 if op_name == "none":
                     break
 
-                connected_from: str = re.findall("~[0-9]", op_str)
+                connected_from: list = re.findall("~[0-9]", op_str)
 
                 if len(connected_from) > 0:
                     connected_from = connected_from[0][1:]
