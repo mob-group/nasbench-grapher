@@ -1,9 +1,11 @@
 import re
+import graphviz
 import pandas as pd
 
-from utils import *
+from utils import Node, Edge
 from typing import List, Optional, Tuple, Set
-from graphviz import Digraph
+
+from .nasbench_graph import NASBenchDigraph
 
 __all__ = ["NASBench201Digraph"]
 
@@ -21,7 +23,7 @@ class NASBench201Digraph(NASBenchDigraph):
 
     def __init__(self, df: pd.DataFrame, stylesheet: Optional[object] = None) -> None:
 
-        self.dot_graph: graphviz.Digraph = Digraph(
+        self.dot_graph: graphviz.Digraph = graphviz.Digraph(
             format="pdf",
             edge_attr=stylesheet["edge_attr"],
             node_attr=stylesheet["node_attr"],
