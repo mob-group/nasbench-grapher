@@ -1,5 +1,6 @@
 import re
 import graphviz
+import numpy as np
 import pandas as pd
 
 from utils import Node, Edge
@@ -11,7 +12,8 @@ __all__ = ["NASBench201Digraph"]
 
 
 class NASBench201Digraph(NASBenchDigraph):
-    OPS: List[str] = ["conv_3x3", "avg_pool_3x3", "skip_connect", "conv_1x1", "none"]
+    OPS: List[str] = ["conv_3x3", "conv_1x1", "avg_pool_3x3", "skip_connect", "none"]
+    PRETTY_OPS: List[str] = ["Conv(3,3)", "Conv(1,1)", "AvgPool2d(3,3)", "Skip", "None"]
 
     pretty_names: dict = {
         "conv_3x3": "Conv(3,3)",
@@ -54,17 +56,19 @@ class NASBench201Digraph(NASBenchDigraph):
 
     def parse_cell(self, cell_str: str) -> Tuple[List[Node], List[Edge]]:
         # remove leading and trailing bars |
-        nodestr: str = cell_str[1:]
 
-        if nodestr[-1] == "|":
-            nodestr = nodestr[:-1]
+        if cell_str[0] == "|":
+            cell_str: str = cell_str[1:]
+
+        if cell_str[-1] == "|":
+            cell_str = cell_str[:-1]
 
         nodes: Set[Node] = set()
         edges: Set[Edge] = set()
 
         # e.g.
         # |nor_conv_3x3~0|+|nor_conv_3x3~0|avg_pool_3x3~1|+|skip_connect~0|nor_conv_3x3~1|skip_connect~2|
-        for i, node in enumerate(nodestr.split("|+|")):
+        for i, node in enumerate(cell_str.split("|+|")):
             node_id: int = i + 1
             #  e.g.
             # skip_connect~0|nor_conv_3x3~1|skip_connect~2|
@@ -73,13 +77,9 @@ class NASBench201Digraph(NASBenchDigraph):
                 #  e.g.
                 #  skip_connect~0
                 nodes.add(Node(f"{node_id}"))
-
                 op_name: str = [self.pretty_names[o] for o in self.OPS if o in op_str][
                     0
                 ]
-
-                if op_name == "none":
-                    break
 
                 connected_from: list = re.findall("~[0-9]", op_str)
 
@@ -115,5 +115,17 @@ class NASBench201Digraph(NASBenchDigraph):
             ):  # doesn't matter what comes through node 1
                 bits[0] = self.set_none(bits[0])  # node 0 -> 1 now none
             new = "|".join(bits)
-        print(new)
         return new
+
+    def compile_graph_to_matrix(self, nodes: List[Node], edges: List[Edge]):
+        # nodes = [0,1,2,3]
+        # edges = [Edge(0,1,'conv1x1'), Edge(1,2,'conv3x3')]
+
+        matrix = np.zeros((len(nodes), len(self.OPS)))
+
+        for edge in edges:
+            matrix[
+                int(edge.from_node_id), int(edge.to_node_id)
+            ] = self.PRETTY_OPS.index(edge.label)
+
+        return matrix
