@@ -1,14 +1,16 @@
 edge_attr:
   "fontsize": "12"
-  "fontname": "Helvetica"
+  "fontname": "monospace"
   "color": "#8c1910ff"
   "fontcolor": "#8c1910ff"
   "penwidth": "1.2"
 
 node_attr:
   "fixedsize": "true"
-  "fontname": "Helvetica"
-  "shape": "ellipse"
+  "fontname": "monospace"
+  "shape": "box"
   "style": "filled"
   "fontcolor": "white"
   "fillcolor": "#8c1910ff"
+  "rank": "same"
+  "align": "top"
